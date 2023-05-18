@@ -54,6 +54,10 @@ function populateTable(page) {
                 $('.upc-menu-page #scan-status').text('Scanned: ' + scanStatus.current + '/' + scanStatus.total);
                 $('.upc-menu-page #found-photos-count').text('Total found: ' + foundPhotosCount);
 
+                if (foundPhotosCount > 0 && $('.upc-menu-page #delete-all-button').length === 0){
+                    $('.upc-menu-page #found-photos-count').after('<button id="delete-all-button" class="button">Delete all</button>');
+                }
+
                 var foundPhotosSubset = response.found_photos_subset;
 
                 // Clear the existing table rows
@@ -197,6 +201,11 @@ function deleteAllPhotos() {
                 if (response.success) {
                     // Image deleted successfully, update the UI
                     $('.upc-menu-page .delete-button').closest('tr').remove();
+
+                    $('.upc-menu-page #delete-all-button').remove();
+
+                    $('.upc-menu-page #found-photos-count').text('Total found: 0');
+
                     showAdminNotice('success', 'All photos deleted successfully.');
                 } else {
                     showAdminNotice('error', 'Failed to delete photos!');
