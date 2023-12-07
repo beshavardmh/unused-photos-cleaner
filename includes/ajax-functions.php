@@ -55,6 +55,7 @@ function unused_photos_delete_photo() {
 		$plugin_data = get_option( 'unused_photos_cleaner_data', null );
 		if ( $plugin_data != null ) {
 			$found_photos = $plugin_data['found_photos'];
+			$found_photos_attachments = $plugin_data['found_photos_attachments'];
 
 			if (isset($found_photos[$photo_index])) {
 				// Delete the photo file
@@ -66,7 +67,20 @@ function unused_photos_delete_photo() {
 				unset($found_photos[$photo_index]);
 			}
 
+            if (isset($found_photos_attachments[$photo_index])) {
+                $attachment_id = $found_photos_attachments[$photo_index];
+
+                // Delete the photo attachment from media
+                if ( $attachment_id ) {
+                    wp_delete_attachment($attachment_id, true);
+                }
+
+                // Delete the photo attachment from plugin data
+                unset($found_photos_attachments[$photo_index]);
+            }
+
 			$plugin_data['found_photos'] = $found_photos;
+			$plugin_data['found_photos_attachments'] = $found_photos_attachments;
 			update_option( 'unused_photos_cleaner_data', $plugin_data );
 
 			$response = array(
@@ -85,6 +99,7 @@ function unused_photos_delete_all_photos() {
 	$plugin_data = get_option( 'unused_photos_cleaner_data', null );
 	if ( $plugin_data != null ) {
 		$found_photos = $plugin_data['found_photos'];
+        $found_photos_attachments = $plugin_data['found_photos_attachments'];
 
 		foreach ( $found_photos as  $photo ) {
 			// Delete the photo file
@@ -93,8 +108,16 @@ function unused_photos_delete_all_photos() {
 			}
 		}
 
+		foreach ( $found_photos_attachments as  $attachment_id ) {
+            // Delete the photo attachment from media
+            if ( $attachment_id ) {
+                wp_delete_attachment($attachment_id, true);
+            }
+		}
+
 		// Delete all found photos from plugin data
 		$plugin_data['found_photos'] = [];
+		$plugin_data['found_photos_attachments'] = [];
 		update_option( 'unused_photos_cleaner_data', $plugin_data );
 
 		$response = array(
